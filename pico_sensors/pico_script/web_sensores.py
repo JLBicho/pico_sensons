@@ -9,8 +9,12 @@ from breakout_mics6814 import BreakoutMICS6814
 from pimoroni_i2c import PimoroniI2C
 from json import dumps
 
-ssid = "MIWIFI_D64C"
-password = "AEYU6A2E"
+
+casa = "MIWIFI_D64C"
+casa_pwd = "AEYU6A2E"
+
+robotica = "robotica"
+robotica_pwd = "robotica"
 
 PINS_BREAKOUT_GARDEN = {"sda": 4, "scl": 5}
 
@@ -25,11 +29,24 @@ mics.set_brightness(1.0)
 def connect():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
+    networks = wlan.scan()
+    nlist = [n[0].decode("utf-8") for n in networks]
+    if(casa in nlist):
+        ssid = casa
+        password = casa_pwd
+    elif(robotica in nlist):
+        ssid = robotica
+        password = robotica_pwd
+    
+    print(f"Connecting to {ssid}")
     wlan.connect(ssid, password)
+    pico_led.off()
     while wlan.isconnected() == False:
         print('Waiting for connection...')
+        pico_led.toggle()
         sleep(1)
     ip = wlan.ifconfig()[0]
+    pico_led.off()
     print(f"IP {ip}")
     return ip
 
